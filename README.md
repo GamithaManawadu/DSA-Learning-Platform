@@ -29,7 +29,12 @@ npm run build
 | `#/drills` | Cross-topic "which tool would you pick" scenarios |
 | `#/review` | Spaced repetition over everything answered anywhere in the app |
 
-17 of the 61 syllabus topics are built. The remaining 44 appear in the sidebar so the scope stays honest.
+26 topics are built. The sidebar lists the whole W3Schools syllabus plus a **Beyond the syllabus** group,
+because that syllabus omits several structures that matter more in production than some of what it includes —
+heaps and priority queues most of all.
+
+Recently added: heaps, counting sort, radix sort, linked lists, AVL rotations, memoisation, tabulation,
+0/1 knapsack and greedy algorithms with a worked counter-example where greedy gives the wrong answer.
 
 ## Architecture
 
@@ -46,7 +51,8 @@ src/
     useDetail.js   long-form explanations behind each use case
     curriculum.js  the full syllabus, built and unbuilt
     *.d.ts         types for the above
-  render/stage.js  imperative renderers (array, linear, buckets, tree, graph)
+    extra.js       the later topics: heaps, counting, radix, linked lists, AVL, the DP arc, greedy
+  render/stage.js  imperative renderers (array, linear, buckets, tree, graph, grid, chain)
   components/      Player, Stage, Controls, Questions, Sheet, Rail, Tabs
   views/           Learn, Practice, Lab, DebugList, Drills, Review, Path
   practice/        Web Worker sandbox + runner with a 4s kill switch
@@ -99,7 +105,12 @@ used by `hashDemo`. Every frame needs a `note` (one sentence, plain English, pre
 **4. Optional but recommended:** an entry in `stdlib.js`, three long explanations in `useDetail.js`,
 a challenge in `practice.js`, and a counting version in `counters.js`.
 
-**5. Run `npm test`.** The gate checks that the lesson builds frames, every `line` points at a real code
+**5. Run `npm test`.** For anything with a real algorithm behind it, add a correctness check there too:
+the suite brute-forces the knapsack table against all subsets, checks the heap property in the final array,
+confirms AVL rotations preserve in-order ordering, and verifies counting and radix sort output is a sorted
+permutation of the input.
+
+The gate also checks that The gate checks that the lesson builds frames, every `line` points at a real code
 line, sorts actually sort over 100 random inputs, references return correct answers over 60, every answer
 index is in range, and the curriculum agrees with the lesson table.
 
@@ -114,19 +125,20 @@ Each topic's questions target a different failure mode, in this order:
 
 ## Roadmap
 
-Ordered by how much each unlocks:
-
-1. **Linked lists** — reuses the linear renderer, needs pointer arrows
-2. **Counting and radix sort** — reuses the buckets renderer
-3. **AVL rotations** — needs animated re-parenting in the tree renderer
-4. **MST and max flow** — existing graph renderer, new builders only
-5. **Dynamic programming** — needs a grid renderer, where memoisation and tabulation fill the same table in
-   different orders. Worth building properly; it is the best lesson in the syllabus
+1. **Tries** — autocomplete and prefix search; needs a compact tree layout
+2. **Union-find** — the missing half of Kruskal, and the standard cycle-detection tool
+3. **Sliding window and two pointers** — patterns rather than structures, but they appear constantly
+4. **LRU cache** — combines the hash map and linked-list lessons into one build-it-yourself exercise
+5. **MST and max flow** — existing graph renderer, new builders only
 6. **Free-text recall** — an "explain it back" box graded by a model. Multiple choice is the weakest part of
    the assessment layer
 
 Deliberately excluded: streaks and badges, which optimise for return visits rather than understanding, and a
 full multi-language in-browser IDE, which is months of work to duplicate something that already exists.
+
+Counting and radix sort are deliberately absent from the complexity lab. They make zero comparisons, so a
+flat line at zero on a comparison chart would read as a bug rather than as the point. The claim is made in
+their lessons and tested in `npm test` instead.
 
 ## Known limits
 

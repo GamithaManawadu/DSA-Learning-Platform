@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { EXTRA_PRACTICE } from './extra.js';
 class Tape{
   constructor(vals){ this.a=[...vals]; this.ops=[]; this.t0=Date.now(); }
   _guard(){ if(this.ops.length>300000) throw new Error('Too many operations. This usually means a loop that never ends.');
@@ -53,5 +54,7 @@ const PRACTICE={
     starter:'function bfs(start, neighbours) {\n  const order = [], queue = [start], seen = new Set([start]);\n  while (queue.length) {\n    const node = queue.shift();\n    // visit node, then queue any unseen neighbours\n  }\n  return order;\n}',
     check:'bfs'}
 };
+
+Object.assign(PRACTICE, EXTRA_PRACTICE);
 
 export { Tape, PRACTICE };

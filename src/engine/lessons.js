@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { EXTRA_LESSONS } from './extra.js';
 import { rnd, bubble, selection, insertion, quick, merge, linearSearch, binarySearch,
   stackDemo, queueDemo, hashDemo, bstInsert, traversal, bfs, dfs, dijkstra } from './algorithms.js';
 
@@ -311,5 +312,7 @@ const L = {
       {q:'Why do map applications use A* rather than plain Dijkstra?',o:['A* adds an estimate of remaining distance so the search heads toward the destination','Dijkstra gives wrong answers','A* needs no graph'],a:0,
        why:'Dijkstra expands in all directions equally. A straight-line estimate steers the work toward the goal and cuts the nodes explored dramatically.'}]}
 };
+
+Object.assign(L, EXTRA_LESSONS);
 
 export { L, DEF_VALS };

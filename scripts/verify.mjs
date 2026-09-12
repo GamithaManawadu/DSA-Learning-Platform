@@ -44,7 +44,7 @@ for (const [id, p] of Object.entries(PRACTICE)) {
   check(typeof new Function('return (' + p.starter + ')')() === 'function', id + ': starter does not compile');
   if (!p.ref) continue;
   for (let t = 0; t < 60; t++) {
-    let vals = rnd(7, 1, 60);
+    let vals = p.range ? rnd(7, p.range[0], p.range[1]) : rnd(7, 1, 60);
     if (p.sorted) vals.sort((a, b) => a - b);
     if (p.check === 'sorted') {
       const tape = new Tape(vals);
@@ -56,6 +56,83 @@ for (const [id, p] of Object.entries(PRACTICE)) {
       check(p.ref(new Tape(vals), 9999) === -1, id + ': reference does not return -1 when absent');
     }
   }
+}
+
+
+/* ---- the newer topics: check the algorithm, not just that frames exist ---- */
+const lastWatch = (frames, key) => {
+  for (let i = frames.length - 1; i >= 0; i--) {
+    const row = (frames[i].watch || []).find(([k]) => k === key);
+    if (row) return row[1];
+  }
+  return null;
+};
+
+// heap: the min-heap property must hold in the final array
+{
+  const arr = String(lastWatch(L.heap.build(), 'heap as an array')).split(', ').map(Number);
+  arr.forEach((v, i) => {
+    if (i > 0) check(arr[(i - 1) >> 1] <= v, 'heap: parent larger than child at ' + i);
+  });
+}
+
+// counting sort: the output row must be a sorted permutation of the input row
+for (let t = 0; t < 40; t++) {
+  const f = L.counting.build();
+  const input = f[1].rows[0].cells.map((c) => c.t);
+  const out = f[f.length - 1].rows[2].cells.map((c) => c.t);
+  check(out.every((v, i) => i === 0 || out[i - 1] <= v), 'counting sort: output not sorted');
+  check([...input].sort().join() === [...out].sort().join(), 'counting sort: values lost or invented');
+}
+
+// radix sort: final order sorted, and still the same multiset
+for (let t = 0; t < 40; t++) {
+  const f = L.radix.build();
+  const start = String(lastWatch([f[0]], 'current order')).split(', ').map(Number);
+  const end = String(lastWatch(f, 'final order')).split(', ').map(Number);
+  check(end.every((v, i) => i === 0 || end[i - 1] <= v), 'radix sort: not sorted');
+  check([...start].sort((a, b) => a - b).join() === [...end].join(), 'radix sort: values lost');
+}
+
+// AVL: six ascending inserts must not produce a chain, and in-order must ascend
+{
+  const f = L.avl.build();
+  const last = f[f.length - 1];
+  check(last.nodes.length === 6, 'avl: wrong node count');
+  check(+lastWatch(f, 'height') <= 3, 'avl: tree did not stay balanced');
+  const inorder = [...last.nodes].sort((a, b) => a.x - b.x).map((n) => n.v);
+  check(inorder.every((v, i) => i === 0 || inorder[i - 1] < v), 'avl: rotation broke the search-tree order');
+}
+
+// memoisation and tabulation must agree, and both must be right
+{
+  const memoF = L.memo.build();
+  const tabF = L.tabulation.build();
+  const memoCells = memoF[memoF.length - 1].rows[0].cells.map((c) => c.t);
+  const tabCells = tabF[tabF.length - 1].rows[0].cells.map((c) => c.t);
+  check(memoCells.join() === tabCells.join(), 'memo and tabulation disagree');
+  check(tabCells[8] === 21, 'fib(8) should be 21, got ' + tabCells[8]);
+}
+
+// knapsack: compare the table against brute force over all subsets
+{
+  const f = L.dp.build();
+  const last = f[f.length - 1];
+  const best = last.rows[last.rows.length - 1].cells[7].t;
+  const items = [[3, 40], [2, 25], [4, 50], [1, 15]];
+  let brute = 0;
+  for (let mask = 0; mask < 16; mask++) {
+    let w = 0, v = 0;
+    items.forEach(([iw, iv], i) => { if (mask & (1 << i)) { w += iw; v += iv; } });
+    if (w <= 7) brute = Math.max(brute, v);
+  }
+  check(best === brute, `knapsack: table says ${best}, brute force says ${brute}`);
+}
+
+// greedy: the failure case must genuinely fail
+{
+  const f = L.greedy.build();
+  check(f.some((fr) => /optimal answer is <b>two<\/b>/.test(fr.note)), 'greedy: the counter-example is missing');
 }
 
 // counters must grow the way the labels claim

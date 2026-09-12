@@ -3,7 +3,9 @@
 import { renderToString } from 'react-dom/server';
 import App from '../src/App';
 
-const views = ['#/path', '#/learn/bubble', '#/learn/dijkstra', '#/practice/binary',
+const views = ['#/path', '#/learn/bubble', '#/learn/dijkstra', '#/learn/heap', '#/learn/counting',
+               '#/learn/radix', '#/learn/linkedlist', '#/learn/avl', '#/learn/memo',
+               '#/learn/tabulation', '#/learn/dp', '#/learn/greedy', '#/practice/counting',
                '#/lab', '#/debug', '#/debug/bug-binary', '#/drills', '#/review'];
 
 let total = 0;

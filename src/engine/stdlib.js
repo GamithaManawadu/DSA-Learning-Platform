@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { EXTRA_STDLIB } from './extra.js';
 const SORT_CALLS=[
   ['Python','sorted(xs)  |  xs.sort()','Timsort. Stable. Give it key=lambda r: r.age to sort objects.'],
   ['Java','Collections.sort(list)  |  Arrays.sort(arr)','Timsort for objects, dual-pivot quicksort for primitives.'],
@@ -79,5 +80,7 @@ const STDLIB={
     costs:[['With a heap','O(E log V)'],['Scanning for the minimum instead','O(V²)']],
     gotcha:'The version shown here scans for the cheapest node, which is O(V²). Real implementations use a priority queue. On a sparse graph that is the difference between usable and not.'}
 };
+
+Object.assign(STDLIB, EXTRA_STDLIB);
 
 export { STDLIB, SORT_CALLS };

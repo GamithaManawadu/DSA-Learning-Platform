@@ -23,7 +23,7 @@ function correctness(p, fn) {
 
   if (p.check === 'sorted') {
     for (let k = 0; k < 10; k++) {
-      const vals = rnd(6 + k, 3, 60);
+      const vals = p.range ? rnd(6 + k, p.range[0], p.range[1]) : rnd(6 + k, 3, 60);
       const tape = new Tape(vals);
       cases++;
       fn(tape);

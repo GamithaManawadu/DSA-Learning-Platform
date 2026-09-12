@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { EXTRA_DETAIL } from './extra.js';
 const USE_DETAIL = {
 bubble:[
 `Two loops, one inside the other, where the inner one runs afresh for every turn of the outer one. That is the whole shape interviewers are looking for. On a list of 10 items it is about 100 steps; on 1,000 items it is about a million; on 10,000 it is a hundred million. The list grew 1,000 times but the work grew a million times. Bubble sort is the smallest piece of code that shows this, so it becomes the example everyone learns first. The real skill being tested is not sorting. It is looking at unfamiliar code and noticing that a loop inside a loop means the cost multiplies.`,
@@ -85,4 +86,6 @@ dijkstra:[
 `Routers inside a company network share a map of which links exist and what each one costs, with cost derived from bandwidth. Each router runs Dijkstra over that shared map to work out the best next hop for every destination, and stores the results in its forwarding table. When a cable is cut, the map changes and every router recomputes within seconds, which is how traffic reroutes without anyone intervening. Without this, a router would only know about its immediate neighbours and would have no basis for choosing between them.`,
 `Moving data between cloud regions, where each hop has a price per gigabyte and a latency. Choosing a path through a content delivery network. Picking a sequence of currency conversions with a fee at each step. In all of these your options form a network and every step carries a number, so the same algorithm applies unchanged and only the meaning of the number differs. Recognising that a problem is really a weighted graph is usually the hard part; once you see it, the algorithm is already written.`]
 };
+Object.assign(USE_DETAIL, EXTRA_DETAIL);
+
 export { USE_DETAIL };

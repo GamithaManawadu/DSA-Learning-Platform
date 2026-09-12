@@ -52,6 +52,7 @@ export interface PracticeChallenge {
   starter: string;
   check: 'sorted' | 'index' | 'tree' | 'bfs';
   sorted?: boolean;
+  range?: [number, number];
   ref?: (...args: never[]) => unknown;
   saved?: string;
 }

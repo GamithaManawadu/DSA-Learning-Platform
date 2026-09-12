@@ -34,6 +34,14 @@ function mountFrames(frames){
     const box=document.createElement('div'); box.className='buckets'; stage.appendChild(box);
     mounted.extra={box};
   }
+  else if(k==='grid'){
+    const box=document.createElement('div'); box.className='gridwrap'; stage.appendChild(box);
+    mounted.extra={box};
+  }
+  else if(k==='chain'){
+    const box=document.createElement('div'); box.className='chain'; stage.appendChild(box);
+    mounted.extra={box};
+  }
   else if(k==='tree'||k==='graph'){
     const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
     svg.setAttribute('class','canvas'); svg.setAttribute('viewBox','0 0 580 280');
@@ -58,18 +66,18 @@ function mountFrames(frames){
         d.setAttribute('text-anchor','middle'); svg.appendChild(d); mounted.extra.labels[k2]=d;
       });
     } else {
-      const nodes=frames[0].nodes, byId=Object.fromEntries(nodes.map(n=>[n.id,n]));
-      nodes.forEach(n=>{
-        if(n.parent){
-          const p=byId[n.parent];
-          const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
-          ln.setAttribute('class','edge tree'); ln.setAttribute('x1',p.x);ln.setAttribute('y1',p.y);
-          ln.setAttribute('x2',n.x);ln.setAttribute('y2',n.y); mounted.extra.svg.appendChild(ln);
-          mounted.extra.edges[n.id]=ln;
-        }
+      /* A node can appear late (BST insert) or move (heap sift, AVL rotation), so
+         mount from every node seen in any frame and let draw() place them. */
+      const seen=new Map();
+      frames.forEach(fr=>(fr.nodes||[]).forEach(n=>{ if(!seen.has(n.id)) seen.set(n.id,n); }));
+      const all=[...seen.values()];
+      all.forEach(n=>{
+        const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+        ln.setAttribute('class','edge tree hide');
+        mounted.extra.svg.appendChild(ln); mounted.extra.edges[n.id]=ln;
       });
-      nodes.forEach(n=>{
-        const g=document.createElementNS('http://www.w3.org/2000/svg','g'); g.setAttribute('class','node');
+      all.forEach(n=>{
+        const g=document.createElementNS('http://www.w3.org/2000/svg','g'); g.setAttribute('class','node hide');
         g.innerHTML=`<circle cx="${n.x}" cy="${n.y}" r="21"></circle><text x="${n.x}" y="${n.y}">${n.v}</text>`;
         svg.appendChild(g); mounted.extra.nodes[n.id]=g;
       });
@@ -111,18 +119,47 @@ function draw(f){
   }
   else if(f.kind==='buckets'){
     const {box}=mounted.extra; box.innerHTML='';
+    box.style.gridTemplateColumns='repeat('+f.buckets.length+',minmax(0,1fr))';
     f.buckets.forEach((b,i)=>{
       const d=document.createElement('div'); d.className='bk'+(i===f.on?' on':'');
-      d.innerHTML='<h4>'+i+'</h4>'+b.map(p=>`<div class="pair${f.hit===p.k?' hit':''}">${p.k}<br>${p.v}</div>`).join('');
+      const label=f.labels?f.labels[i]:i;
+      d.innerHTML='<h4>'+label+'</h4>'+b.map(pr=>
+        `<div class="pair${f.hit===pr.k?' hit':''}">${pr.v===''||pr.v===undefined?pr.k:pr.k+'<br>'+pr.v}</div>`).join('');
       box.appendChild(d);
     });
   }
+  else if(f.kind==='grid'){
+    const {box}=mounted.extra;
+    box.innerHTML='<table class="dpgrid"><tbody>'+
+      (f.cols?'<tr><th></th>'+f.cols.map(c=>`<th>${c}</th>`).join('')+'</tr>':'')+
+      f.rows.map(r=>'<tr><th>'+r.label+'</th>'+
+        r.cells.map(c=>`<td class="${c.role||''}">${c.t===undefined?'':c.t}</td>`).join('')+'</tr>').join('')+
+      '</tbody></table>';
+  }
+  else if(f.kind==='chain'){
+    const {box}=mounted.extra;
+    box.innerHTML=f.nodes.map(n=>
+      `<span class="cnode ${n.role||''}"><b>${n.v}</b><i>${n.id}</i></span>`).join('<span class="arrow">\u2192</span>')+
+      (f.nodes.length?'<span class="arrow">\u2192</span>':'')+'<span class="cnull">null</span>';
+  }
   else if(f.kind==='tree'){
     const {nodes,edges}=mounted.extra;
+    const byId=Object.fromEntries(f.nodes.map(n=>[n.id,n]));
     f.nodes.forEach(n=>{
-      const g=nodes[n.id]; const on=f.present.includes(n.id);
+      const g=nodes[n.id]; if(!g) return;
+      const on=f.present.includes(n.id);
       g.setAttribute('class','node'+(on?'':' hide')+(f.cur===n.id?' cur':'')+(f.seen.includes(n.id)?' seen':''));
-      if(edges[n.id]) edges[n.id].setAttribute('class','edge tree'+(on?'':' hide'));
+      const c=g.firstChild, t=g.lastChild;
+      c.setAttribute('cx',n.x); c.setAttribute('cy',n.y);
+      t.setAttribute('x',n.x);  t.setAttribute('y',n.y);
+      t.textContent=n.v;
+      const ln=edges[n.id]; if(!ln) return;
+      const par=n.parent?byId[n.parent]:null;
+      if(par && on && f.present.includes(par.id)){
+        ln.setAttribute('class','edge tree');
+        ln.setAttribute('x1',par.x); ln.setAttribute('y1',par.y);
+        ln.setAttribute('x2',n.x);   ln.setAttribute('y2',n.y);
+      } else ln.setAttribute('class','edge tree hide');
     });
   }
   else if(f.kind==='graph'){
