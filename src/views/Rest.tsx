@@ -301,10 +301,10 @@ export function Path({ onPick }: { onPick: (id: string) => void }) {
   const done = store.get().completed;
   const solved = store.get().practiceSolved;
   const live = useMemo(
-    () => (CURRICULUM as CurriculumGroup[]).flatMap(([, items]) => items.filter(([, id]) => id).map(([, id]) => id!)),
+    () => (CURRICULUM as CurriculumGroup[]).flatMap(([, items]) => items.map(([, id]) => id)),
     [],
   );
-  const total = (CURRICULUM as CurriculumGroup[]).reduce((n, [, items]) => n + items.length, 0);
+
 
   return (
     <section className="view">
@@ -317,8 +317,8 @@ export function Path({ onPick }: { onPick: (id: string) => void }) {
           <div><b>{s.dueNow}</b><span>due for review</span></div>
         </div>
         <p className="gotcha">
-          {live.length} of the {total} topics in the syllabus are built. The rest are listed in the sidebar so the scope
-          stays honest, and the authoring contract in README.md is what you follow to add one.
+          Every topic in the sidebar is built and working. What is planned but not written lives in the roadmap in
+          README.md, alongside the authoring contract for adding one.
         </p>
       </div>
 

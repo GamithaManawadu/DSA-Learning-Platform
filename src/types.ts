@@ -57,7 +57,8 @@ export interface PracticeChallenge {
   saved?: string;
 }
 
-export type CurriculumGroup = [string, [string, string | null][]];
+/* Every entry maps to a built lesson; there is no null case any more. */
+export type CurriculumGroup = [string, [string, string][]];
 
 export interface Verdict {
   kind: 'good' | 'bad' | 'warn';

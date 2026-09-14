@@ -67,11 +67,10 @@ export function Sheet({ title, lead, body, onClose }: { title: string; lead: str
 
 /* ---------- curriculum rail ---------- */
 
-export function Rail({ curriculum, current, onPick, onLocked }: {
+export function Rail({ curriculum, current, onPick }: {
   curriculum: CurriculumGroup[];
   current: string;
   onPick: (id: string) => void;
-  onLocked: (label: string) => void;
 }) {
   const done = store.get().completed;
   return (
@@ -80,10 +79,9 @@ export function Rail({ curriculum, current, onPick, onLocked }: {
         <div key={group}>
           <div className="grp">{group}</div>
           {items.map(([label, id]) => (
-            <button key={label + (id ?? '')}
-                    className={[id ? 'live' : '', id && done[id] ? 'done' : '', id === current ? 'sel' : ''].filter(Boolean).join(' ')}
-                    title={id ? undefined : 'Queued for the next build phase'}
-                    onClick={() => (id ? onPick(id) : onLocked(label))}>
+            <button key={label}
+                    className={['live', done[id] ? 'done' : '', id === current ? 'sel' : ''].filter(Boolean).join(' ')}
+                    onClick={() => onPick(id)}>
               <span className="dot" /><span>{label}</span>
             </button>
           ))}
@@ -119,6 +117,3 @@ export function Tabs({ view, topic, dueCount }: { view: Route['view']; topic: st
   );
 }
 
-export function Toast({ msg }: { msg: string | null }) {
-  return <div className={'toast' + (msg ? ' show' : '')}>{msg}</div>;
-}

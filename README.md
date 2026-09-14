@@ -1,7 +1,7 @@
 # DSA, one step at a time
 
 An interactive platform for learning data structures and algorithms, built around the idea that
-**every algorithm compiles to an array of frames**. Each frame is a complete snapshot — the data, what is
+**every algorithm compiles to an array of frames**. Each frame is a complete snapshot - the data, what is
 being compared, the line of code executing, the variables in scope, and a plain-English sentence about why
 this step happened. Stepping, rewinding and scrubbing are all just `render(frames[i])`.
 
@@ -19,22 +19,22 @@ npm run build
 
 ## What is here
 
-| Route | What it does |
-|---|---|
-| `#/path` | Progress across the syllabus, and a suggested order |
-| `#/learn/:id` | Stepper, narration, code highlight, variable watch, production use cases, standard-library mapping, questions |
-| `#/practice/:id` | Editor, sandboxed run, correctness on random inputs, trace diff against the reference |
-| `#/lab` | Measured comparison counts from n = 10 to n = 1000 |
-| `#/debug` and `#/debug/:bugId` | Deliberately broken implementations loaded into the player |
-| `#/drills` | Cross-topic "which tool would you pick" scenarios |
-| `#/review` | Spaced repetition over everything answered anywhere in the app |
+| Route                          | What it does                                                                                                  |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `#/path`                       | Progress across the syllabus, and a suggested order                                                           |
+| `#/learn/:id`                  | Stepper, narration, code highlight, variable watch, production use cases, standard-library mapping, questions |
+| `#/practice/:id`               | Editor, sandboxed run, correctness on random inputs, trace diff against the reference                         |
+| `#/lab`                        | Measured comparison counts from n = 10 to n = 1000                                                            |
+| `#/debug` and `#/debug/:bugId` | Deliberately broken implementations loaded into the player                                                    |
+| `#/drills`                     | Cross-topic "which tool would you pick" scenarios                                                             |
+| `#/review`                     | Spaced repetition over everything answered anywhere in the app                                                |
 
-26 topics are built. The sidebar lists the whole W3Schools syllabus plus a **Beyond the syllabus** group,
-because that syllabus omits several structures that matter more in production than some of what it includes —
-heaps and priority queues most of all.
+26 topics, and every entry in the sidebar opens a working lesson. Nothing is listed that is not built.
 
-Recently added: heaps, counting sort, radix sort, linked lists, AVL rotations, memoisation, tabulation,
-0/1 knapsack and greedy algorithms with a worked counter-example where greedy gives the wrong answer.
+The set does not match the W3Schools syllabus exactly. Several pages there are theory introductions that the
+lessons cover inline, and the whole Time complexity chapter is better served by the Measure it lab. Going the
+other way, heaps and priority queues are missing from that syllabus and matter more in production than some of
+what it does include, so they are here.
 
 ## Architecture
 
@@ -59,86 +59,26 @@ src/
   store/progress   localStorage, completion tracking, spaced repetition
 ```
 
-**Why the renderers stay imperative.** They create the cells once and then move them, which is what makes a
-swap animate rather than jump. `<Stage>` owns a div and lets the renderer work inside it; React manages
-everything around the stage, the renderer manages what is in it. Rewriting them as React state would cost
-the animation and buy nothing.
-
-**Why learner code runs in a Worker.** `new Function` on the main thread means a loop that never touches the
-array freezes the tab. The worker is terminated from outside after four seconds, so no loop can hang the page.
-
-## Adding a topic
-
-A lesson is a frame builder plus a table entry. Nothing else.
-
-**1. Write the builder** in `src/engine/algorithms.js`. Push a snapshot at every decision point:
-
-```js
-export function countingSort(vals) {
-  const a = mkEls(vals), f = [], roles = {};
-  f.push(snapArr(a, roles, 'Counting sort never compares two values...', 0, [], []));
-  // ... push a frame whenever something changes
-  return f;
-}
-```
-
-Snapshot helpers, one per renderer: `snapArr`, `snapLin`, `snapTree`, `snapGraph`, and the buckets shape
-used by `hashDemo`. Every frame needs a `note` (one sentence, plain English, present tense), a `line`
-(index into the lesson's `code`), and optionally `watch` rows.
-
-**2. Add the table entry** in `src/engine/lessons.js`:
-
-```js
-'counting': {
-  t: 'Counting sort', time: 'O(n + k)', space: 'O(k)',
-  idea: 'One or two sentences a beginner can hold in their head.',
-  build: () => countingSort(DEF_VALS()),
-  code: ['for v in a:', '  counts[v] += 1', ...],
-  uses: [['Where', 'How, in one line'], ...],   // three of these
-  quiz: [{ q, o, a, why }, ...],                 // four: mechanism, cost, edge case, judgement
-}
-```
-
-**3. Flip the curriculum entry** in `curriculum.js` from `['Counting sort', null]` to
-`['Counting sort', 'counting']`.
-
-**4. Optional but recommended:** an entry in `stdlib.js`, three long explanations in `useDetail.js`,
-a challenge in `practice.js`, and a counting version in `counters.js`.
-
-**5. Run `npm test`.** For anything with a real algorithm behind it, add a correctness check there too:
-the suite brute-forces the knapsack table against all subsets, checks the heap property in the final array,
-confirms AVL rotations preserve in-order ordering, and verifies counting and radix sort output is a sorted
-permutation of the input.
-
-The gate also checks that The gate checks that the lesson builds frames, every `line` points at a real code
-line, sorts actually sort over 100 random inputs, references return correct answers over 60, every answer
-index is in range, and the curriculum agrees with the lesson table.
-
 ### The four-question contract
 
 Each topic's questions target a different failure mode, in this order:
 
-1. **Mechanism** — what the visualization just showed
-2. **Cost** — where the complexity comes from, not what it is called
-3. **Edge case** — what breaks it
-4. **Judgement** — given a real situation, would you pick this
+1. **Mechanism** - what the visualization just showed
+2. **Cost** - where the complexity comes from, not what it is called
+3. **Edge case** - what breaks it
+4. **Judgement** - given a real situation, would you pick this
 
 ## Roadmap
 
-1. **Tries** — autocomplete and prefix search; needs a compact tree layout
-2. **Union-find** — the missing half of Kruskal, and the standard cycle-detection tool
-3. **Sliding window and two pointers** — patterns rather than structures, but they appear constantly
-4. **LRU cache** — combines the hash map and linked-list lessons into one build-it-yourself exercise
-5. **MST and max flow** — existing graph renderer, new builders only
-6. **Free-text recall** — an "explain it back" box graded by a model. Multiple choice is the weakest part of
+Nothing below is in the app yet, by design. The sidebar shows only what works.
+
+1. **Tries** - autocomplete and prefix search; needs a compact tree layout
+2. **Union-find** - the missing half of Kruskal, and the standard cycle-detection tool
+3. **Sliding window and two pointers** - patterns rather than structures, but they appear constantly
+4. **LRU cache** - combines the hash map and linked-list lessons into one build-it-yourself exercise
+5. **MST and max flow** - existing graph renderer, new builders only
+6. **Free-text recall** - an "explain it back" box graded by a model. Multiple choice is the weakest part of
    the assessment layer
-
-Deliberately excluded: streaks and badges, which optimise for return visits rather than understanding, and a
-full multi-language in-browser IDE, which is months of work to duplicate something that already exists.
-
-Counting and radix sort are deliberately absent from the complexity lab. They make zero comparisons, so a
-flat line at zero on a comparison chart would read as a bug rather than as the point. The claim is made in
-their lessons and tested in `npm test` instead.
 
 ## Known limits
 

@@ -1,7 +1,7 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 // @ts-ignore
 import { CURRICULUM } from './engine/curriculum.js';
-import { Rail, Tabs, Toast } from './components/Shared';
+import { Rail, Tabs } from './components/Shared';
 import { Learn } from './views/Learn';
 import { Practice, Lab, DebugList, Drills, Review, Path } from './views/Rest';
 import { useRoute } from './router';
@@ -10,7 +10,6 @@ import type { CurriculumGroup } from './types';
 
 export default function App() {
   const [route, go] = useRoute();
-  const [toast, setToast] = useState<string | null>(null);
   const [topic, setTopic] = useState('bubble');
 
   const snapshot = useSyncExternalStore(store.subscribe, () => store.get(), () => store.get());
@@ -19,12 +18,6 @@ export default function App() {
   useEffect(() => {
     if ((route.view === 'learn' || route.view === 'practice') && route.id) setTopic(route.id);
   }, [route]);
-
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2400);
-    return () => clearTimeout(t);
-  }, [toast]);
 
   const dueCount = store.due().length;
 
@@ -40,8 +33,7 @@ export default function App() {
 
       <div className="app">
         <Rail curriculum={CURRICULUM as CurriculumGroup[]} current={topic}
-              onPick={(id) => go({ view: 'learn', id })}
-              onLocked={(label) => setToast(label + ' is in the build plan, not built yet.')} />
+              onPick={(id) => go({ view: 'learn', id })} />
 
         <main>
           <Tabs view={route.view} topic={topic} dueCount={dueCount} />
@@ -59,7 +51,6 @@ export default function App() {
         </main>
       </div>
 
-      <Toast msg={toast} />
     </>
   );
 }

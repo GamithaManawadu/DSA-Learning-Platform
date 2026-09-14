@@ -26,7 +26,6 @@ h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.01em}
 .rail button .dot{width:7px;height:7px;border-radius:50%;background:var(--indigo-soft);flex:none;transform:translateY(-1px)}
 .rail button.live .dot{background:var(--indigo)}
 .rail button.done .dot{background:var(--teal)}
-.rail button:not(.live){color:#9AA3B0;cursor:default}
 .rail button.live:hover{background:#F2F4F9}
 .rail button.sel{background:#EEF1FA;color:var(--indigo);font-weight:600}
 .rail button:focus-visible{outline:2px solid var(--violet);outline-offset:-2px}

@@ -148,11 +148,10 @@ for (const b of BUGS) {
 }
 DRILLS.forEach((d, i) => check(d.a >= 0 && d.a < d.o.length && !!d.why, 'drill ' + i + ': malformed'));
 
-const live = CURRICULUM.flatMap(([, items]) => items.filter(([, id]) => id));
-check(live.length === Object.keys(L).length, 'curriculum and lesson table disagree on what is built');
-
-const topics = CURRICULUM.reduce((n, [, i]) => n + i.length, 0);
+const entries = CURRICULUM.flatMap(([, items]) => items);
+check(entries.every(([, id]) => id && L[id]), 'the sidebar lists a topic that has no lesson behind it');
+check(entries.length === Object.keys(L).length, 'curriculum and lesson table disagree on what is built');
 if (fail.length) { console.error('FAILED:\n  ' + fail.join('\n  ')); process.exit(1); }
-console.log(`pass: ${Object.keys(L).length} lessons built of ${topics} syllabus topics, ` +
+console.log(`pass: ${Object.keys(L).length} topics, all reachable from the sidebar, ` +
   `${Object.values(L).reduce((n, m) => n + m.quiz.length, 0) + DRILLS.length + BUGS.length} questions, ` +
   `${Object.keys(PRACTICE).length} exercises, ${BUGS.length} debug challenges`);
