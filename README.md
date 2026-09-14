@@ -9,6 +9,8 @@ That one decision is what makes the rest possible: the debug challenges reuse th
 grader diffs a learner's operation trace against the reference, and the complexity lab counts the same
 comparisons the animation shows.
 
+**Live site:** [dsa-learn-platform.netlify.app](https://dsa-learn-platform.netlify.app/)
+
 ```bash
 npm install
 npm run dev        # http://localhost:5173
